@@ -26,13 +26,20 @@
 // WHEN I choose to add a role
 // THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
     // function addRole(){ inquirer.prompt.then((title, salary, department_id) => db.query(insert ? into role)) }
+    //For department choice: prompt{ type: list, message: "Which dept?", name: "department_id", choices: [deptsArray]}
+        //Where does deptsArray come from? db.query(select * department){let deptArray = response}.then inquirer? New function mayhaps??
 
 
 // WHEN I choose to add an employee
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
     // function addEmployee(){ inquirer.prompt.then((first_name, last_name, role_id, manager_id) => db.query(insert ? into role)) }
+        //will need roleArray and mgrArray
 
 
 // WHEN I choose to update an employee role
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
-    // function updateEmployeeRole(){ inquirer.prompt.then((employee, new role) => let variables).then((variables) => db.query(update????look this up)) }
+    // function updateEmployeeRole(){ inquirer.prompt.then((employee, new role) => let variables).then((variables) => db.query(set )) }
+        //will need employeeArray and roleArray
+
+        
+//look into inquirer docs for choices, can have own msg and name keys?

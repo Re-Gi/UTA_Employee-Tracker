@@ -1,13 +1,13 @@
--- view all departments -table department names and department ids
+-- view all departments -SELECT * FROM department
 
--- view all roles -table job title, role id, the department that role belongs to, and the salary for that role
+-- view all roles -SELECT * FROM role
 
--- view all employees -table employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
+-- view all employees -SELECT * FROM employee
 
--- add a department -insert
+-- add a department -INSERT INTO department (keys) VALUES (variables)
 
--- add a role -insert
+-- add a role -INSERT INTO role (keys) VALUES (variables)
 
--- add an employee -insert
+-- add an employee -INSERT INTO employee (keys) VALUES (variables)
 
--- update an employee role -how to update?
+-- update an employee role -UPDATE role SET key = variable WHERE key = variable
