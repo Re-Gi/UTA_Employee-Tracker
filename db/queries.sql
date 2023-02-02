@@ -14,13 +14,21 @@ JOIN roles ON employee.role_id = roles.id
 JOIN departments ON roles.department_id = departments.id;
 
 -- add a department 
--- INSERT INTO departments (keys) VALUES (variables);
+-- INSERT INTO departments (name) VALUES ('Snack Acquisition');
+INSERT INTO departments (name) VALUES (?)
 
 -- add a role 
--- INSERT INTO roles (keys) VALUES (variables);
+-- INSERT INTO roles (title, salary, department_id) VALUES ('Snack Grabber', 1000000, 5);
+INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)
 
 -- add an employee 
--- INSERT INTO employees (keys) VALUES (variables);
+-- INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Rebecca', 'Girndt', 9, null);
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)
 
 -- update an employee role 
--- UPDATE role SET key = variable WHERE key = variable;
+-- UPDATE employees SET role_id = 9 WHERE id = 1;
+UPDATE employees SET role_id = ? WHERE id = ?
+
+-- Update employee managers.
+-- UPDATE employees SET manager_id = 3 WHERE manager_id = 1;
+UPDATE employees SET manager_id = ? WHERE manager_id = ?;
