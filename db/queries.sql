@@ -1,6 +1,15 @@
 -- a formatted table showing department names and department ids
 SELECT * FROM departments;
 
+-- I need { value:'departments.id', name:'departments.name' }
+SELECT id AS value, name FROM departments;
+
+-- I need { value:'roles.id', name:'roles.title' }
+SELECT id AS value, title AS name FROM roles;
+
+-- I need { value:'employees.id' name:'employees.fullname'}
+SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees
+
 -- presented with the job title, role id, the department that role belongs to, and the salary for that role
 SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id;
 

@@ -66,13 +66,8 @@ function addDepartment() {
     ]).then((result) => insertDepartment(result))
 };
 
-// WHEN I choose to add a role
-// THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-    // function addRole(){ inquirer.prompt.then((title, salary, department_id) => db.query(insert ? into role)) }
-    //For department choice: prompt{ type: list, message: "Which dept?", name: "department_id", choices: [deptsArray]}
-        //Where does deptsArray come from? db.query(select * department){let deptArray = response}.then inquirer? New function mayhaps??
-async function addRole() {
-
+//
+function addRole() {
     db.promise().query('SELECT id AS value, name FROM departments')
     .then( ([rows,fields]) => {
         inquirer.prompt([
@@ -97,21 +92,40 @@ async function addRole() {
       .catch(console.log)
 };
 
-// const selectDepartment = new Promise((resolve, reject) => {
-//     db.query('SELECT * FROM departments', function (err, results) {
-//         if(err){
-//             reject(err);
-//         }
-//         resolve(results);
-//     })
-// });
-
 // WHEN I choose to add an employee
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
     // function addEmployee(){ inquirer.prompt.then((first_name, last_name, role_id, manager_id) => db.query(insert ? into role)) }
         //will need roleArray and mgrArray
 function addEmployee() {
-    console.log('Add an employee');
+    db.promise().query('SELECT id AS value, title AS name FROM roles')
+    //need to also query employees ids and names
+    .then( ([rows,fields]) => {
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'first_name',
+                message: "What is the employee's first name?"
+            },
+            {
+                type: 'input',
+                name: 'last_name',
+                message: "What is the employee's last name?"
+            },
+            {
+                type: 'list',
+                name: 'role_id',
+                message: "What is the employee's role?",
+                choices: [...rows]
+            },
+            {
+                type: 'list',
+                name: 'manager_id',
+                message: "Who is the employee's manager?",
+                choices: [...rows]
+            }
+        ]).then((result) => insertRole(result));
+      })
+      .catch(console.log)
 };
 
 // WHEN I choose to update an employee role
