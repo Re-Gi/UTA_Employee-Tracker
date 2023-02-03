@@ -199,8 +199,18 @@ function insertRole(input) {
     });
 }
 
-function insertEmployee(input) {
-    console.log(input);
+async function insertEmployee(input) {
+    let sql = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
+    let params = [input.first_name, input.last_name, input.role_id, input.manager_id]
+try {
+    await db.promise().query(sql, params);
+
+    await console.log(`'${input.first_name} ${input.last_name}' added to the database`);
+
+    mainPrompt();
+} catch (err) {
+    console.log(err);
+}
 }
         
 
