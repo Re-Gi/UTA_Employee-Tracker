@@ -13,19 +13,19 @@ const db = mysql.createConnection(
         database: process.env.DATABASE
     }, 
     console.log('Connected to the company_db database.')
-)
+);
 
 // initial navigation prompt, occurs at the start of the app and after the completion of each action
-function mainPrompt() {
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'next',
-            message: 'What would you like to do?',
-            choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
-        }
-    ]).then((result) => {
-        switch (result.next) {
+async function mainPrompt() {
+    try {
+        const answers = await inquirer.prompt([{
+                    type: 'list',
+                    name: 'next',
+                    message: 'What would you like to do?',
+                    choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
+                }]);
+
+        switch (answers.next) {
             case 'View all departments':
                 viewDepartments();
                 break;
@@ -47,8 +47,10 @@ function mainPrompt() {
             case 'Update an employee role':
                 updateEmployeeRole();
                 break;
-        }
-    });
+        };
+    } catch (err) {
+        console.log(err);
+    };
 };
 
 
@@ -56,55 +58,58 @@ function mainPrompt() {
 
 
 // 
-function addDepartment() {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'name',
-            message: 'What is the name of the department?'
-        }
-    ]).then((result) => insertDepartment(result))
+async function addDepartment() {
+    try {
+        const answers = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'name',
+                    message: 'What is the name of the department?'
+                }
+                ]);
+        
+        insertDepartment(answers);
+    } catch (err) {
+        console.log(err);
+    };
 };
 
 //
-function addRole() {
-    db.promise().query('SELECT id AS value, name FROM departments')
-    .then( ([rows,fields]) => {
-        inquirer.prompt([
-            {
-                type: 'input',
-                name: 'title',
-                message: 'What is the name of the role?'
-            },
-            {
-                type: 'input',
-                name: 'salary',
-                message: 'What is the salary of the role?'
-            },
-            {
-                type: 'list',
-                name: 'department_id',
-                message: 'Which department does the role belong to?',
-                choices: [...rows]
-            }
-        ]).then((result) => insertRole(result));
-      })
-      .catch(console.log)
+async function addRole() {
+    try {
+        const results = await db.promise().query('SELECT id AS value, name FROM departments');
+
+        const answers = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'title',
+                    message: 'What is the name of the role?'
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'What is the salary of the role?'
+                },
+                {
+                    type: 'list',
+                    name: 'department_id',
+                    message: 'Which department does the role belong to?',
+                    choices: [...results[0]]
+                }
+            ]);
+
+        insertRole(answers);
+    } catch (err) {
+        console.log(err);
+    };
 };
 
-// WHEN I choose to add an employee
-// THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-    // function addEmployee(){ inquirer.prompt.then((first_name, last_name, role_id, manager_id) => db.query(insert ? into role)) }
-        //will need roleArray and mgrArray
+// 
 async function addEmployee() {
     try {
         const rolesRows = await db.promise().query('SELECT id AS value, title AS name FROM roles');
- 
 
         const employeesRows = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
-
-        // console.log(rolesRows[0]);
-        // console.log(employeesRows[0]);
     
         const answers = await inquirer.prompt([
                 {
@@ -158,12 +163,12 @@ async function viewDepartments() {
         mainPrompt();
     } catch (err) {
         console.log(err);
-    }
+    };
 };
 
 // displays table of current roles and their related departments
 async function viewRoles() {
-    let sql = 'SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id'
+    let sql = 'SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id';
     try {
         const results = await db.promise().query(sql);
 
@@ -187,8 +192,7 @@ async function viewEmployees() {
     };
 };
 
-
-
+//
 async function insertDepartment(input) {
     let sql = 'INSERT INTO departments (name) VALUES (?)';
     let params = input.name;
@@ -199,9 +203,10 @@ async function insertDepartment(input) {
         mainPrompt();
     } catch (err) {
         console.log(err);
-    }
+    };
 }
 
+//
 async function insertRole(input) {
     let sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
     let params = [input.title, input.salary, input.department_id];
@@ -215,6 +220,7 @@ async function insertRole(input) {
     };
 };
 
+//
 async function insertEmployee(input) {
     let sql = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
     let params = [input.first_name, input.last_name, input.role_id, input.manager_id];
