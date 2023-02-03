@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 require('dotenv').config();
 
+//mysql database connection
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -13,9 +14,7 @@ const db = mysql.createConnection(
     console.log('Connected to the company_db database.')
 );
 
-// WHEN I start the application
-// THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-    // function basePrompt(){ inquirer.prompt.then((response) => switch-case => otherFunction()) }
+// initial navigation prompt, occurs at the start of the app and after the completion of each action
 function mainPrompt() {
     inquirer.prompt([
         {
@@ -51,9 +50,7 @@ function mainPrompt() {
     });
 };
 
-// WHEN I choose to view all departments
-// THEN I am presented with a formatted table showing department names and department ids
-    //function viewDepartments(){ db.query(select department table){ console.table(response) } .then(() => mainPrompt()) }
+// displays table of current departments
 function viewDepartments() {
 
     db.query('SELECT * FROM departments', function (err, results) {
@@ -62,9 +59,7 @@ function viewDepartments() {
     });
 };
 
-// WHEN I choose to view all roles
-// THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-    //function viewRoles(){ db.query(select role table){ console.table(response) } .then(() => mainPrompt()) }
+// displays table of current roles and their related departments
 function viewRoles() {
 
     let sql = 'SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id'
@@ -75,9 +70,7 @@ function viewRoles() {
     });
 };
 
-// WHEN I choose to view all employees
-// THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-    //function viewEmployees(){ db.query(select employee table){ console.table(response) } .then(() => mainPrompt()) }
+// displays table of current employees with their id, name, title, department, salary, and manager name.
 function viewEmployees() {
 
     let sql = "SELECT employee.id, employee.first_name, employee.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees employee LEFT OUTER JOIN employees manager ON employee.manager_id = manager.id JOIN roles ON employee.role_id = roles.id JOIN departments ON roles.department_id = departments.id"
@@ -92,9 +85,26 @@ function viewEmployees() {
 // THEN I am prompted to enter the name of the department and that department is added to the database
     // function addDepartment(){ inquirer.prompt.then((name) => db.query(insert ? into department)) }
 function addDepartment() {
-    console.log('Add a department');
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'What is the name of the new department?'
+        }
+    ]).then((result) => insertDept(result))
 };
 
+function insertDept(input) {
+
+    let sql = 'INSERT INTO departments (name) VALUES (?)';
+    let params = input.name;
+
+    db.query(sql, params, function (err, result){
+        console.log(`'${input.name}' department added to the database`);
+        mainPrompt();
+    })
+}
 // WHEN I choose to add a role
 // THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
     // function addRole(){ inquirer.prompt.then((title, salary, department_id) => db.query(insert ? into role)) }
