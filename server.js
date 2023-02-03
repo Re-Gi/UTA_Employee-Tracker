@@ -150,68 +150,83 @@ function updateEmployeeRole() {
 
 
 // displays table of current departments
-function viewDepartments() {
-    db.query('SELECT * FROM departments', function (err, results) {
-        console.table('', results);
+async function viewDepartments() {
+    try {
+        const results = await db.promise().query('SELECT * FROM departments');
+
+        console.table('', results[0]);
         mainPrompt();
-    });
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 // displays table of current roles and their related departments
-function viewRoles() {
+async function viewRoles() {
     let sql = 'SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id'
+    try {
+        const results = await db.promise().query(sql);
 
-    db.query(sql, function (err, results) {
-        console.table('', results);
+        console.table('', results[0]);
         mainPrompt();
-    });
+    } catch (err) {
+        console.log(err);
+    };
 };
 
 // displays table of current employees with their id, name, title, department, salary, and manager name.
-function viewEmployees() {
-    let sql = "SELECT employee.id, employee.first_name, employee.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees employee LEFT OUTER JOIN employees manager ON employee.manager_id = manager.id JOIN roles ON employee.role_id = roles.id JOIN departments ON roles.department_id = departments.id"
+async function viewEmployees() {
+    let sql = "SELECT employee.id, employee.first_name, employee.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees employee LEFT OUTER JOIN employees manager ON employee.manager_id = manager.id JOIN roles ON employee.role_id = roles.id JOIN departments ON roles.department_id = departments.id";
+    try{
+        const results = await db.promise().query(sql);
 
-    db.query(sql, function (err, results) {
-        console.table('', results);
+        console.table('', results[0]);
         mainPrompt();
-    })
+    } catch (err) {
+        console.log(err);
+    };
 };
 
 
 
-function insertDepartment(input) {
+async function insertDepartment(input) {
     let sql = 'INSERT INTO departments (name) VALUES (?)';
     let params = input.name;
+    try{
+        await db.promise().query(sql, params);
 
-    db.promise().query(sql, params).then(() => {
         console.log(`'${input.name}' department added to the database`);
         mainPrompt();
-    });
+    } catch (err) {
+        console.log(err);
+    }
 }
 
-function insertRole(input) {
+async function insertRole(input) {
     let sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
-    let params = [input.title, input.salary, input.department_id]
+    let params = [input.title, input.salary, input.department_id];
+    try {
+        await db.promise().query(sql, params);
 
-    db.promise().query(sql, params).then(() => {
         console.log(`'${input.title}' role added to the database`);
         mainPrompt();
-    });
-}
+    } catch (err) {
+        console.log(err);
+    };
+};
 
 async function insertEmployee(input) {
     let sql = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
-    let params = [input.first_name, input.last_name, input.role_id, input.manager_id]
-try {
-    await db.promise().query(sql, params);
+    let params = [input.first_name, input.last_name, input.role_id, input.manager_id];
+    try {
+        await db.promise().query(sql, params);
 
-    await console.log(`'${input.first_name} ${input.last_name}' added to the database`);
+        console.log(`'${input.first_name} ${input.last_name}' added to the database`);
+        mainPrompt();
+    } catch (err) {
+        console.log(err);
+    };
+};
 
-    mainPrompt();
-} catch (err) {
-    console.log(err);
-}
-}
-        
 
 mainPrompt();
