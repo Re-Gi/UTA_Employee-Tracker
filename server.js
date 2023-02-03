@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 require('dotenv').config();
 
+
 //mysql database connection
 const db = mysql.createConnection(
     {
@@ -12,7 +13,7 @@ const db = mysql.createConnection(
         database: process.env.DATABASE
     }, 
     console.log('Connected to the company_db database.')
-);
+)
 
 // initial navigation prompt, occurs at the start of the app and after the completion of each action
 function mainPrompt() {
@@ -50,69 +51,60 @@ function mainPrompt() {
     });
 };
 
-// displays table of current departments
-function viewDepartments() {
 
-    db.query('SELECT * FROM departments', function (err, results) {
-        console.table('', results);
-        mainPrompt();
-    });
-};
+// PROMPT CONTINUATIONS AND REDIRECTIONS
 
-// displays table of current roles and their related departments
-function viewRoles() {
 
-    let sql = 'SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id'
-
-    db.query(sql, function (err, results) {
-        console.table('', results);
-        mainPrompt();
-    });
-};
-
-// displays table of current employees with their id, name, title, department, salary, and manager name.
-function viewEmployees() {
-
-    let sql = "SELECT employee.id, employee.first_name, employee.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees employee LEFT OUTER JOIN employees manager ON employee.manager_id = manager.id JOIN roles ON employee.role_id = roles.id JOIN departments ON roles.department_id = departments.id"
-
-    db.query(sql, function (err, results) {
-        console.table('', results);
-        mainPrompt();
-    })
-};
-
-// WHEN I choose to add a department
-// THEN I am prompted to enter the name of the department and that department is added to the database
-    // function addDepartment(){ inquirer.prompt.then((name) => db.query(insert ? into department)) }
+// 
 function addDepartment() {
-
     inquirer.prompt([
         {
             type: 'input',
             name: 'name',
-            message: 'What is the name of the new department?'
+            message: 'What is the name of the department?'
         }
-    ]).then((result) => insertDept(result))
+    ]).then((result) => insertDepartment(result))
 };
 
-function insertDept(input) {
-
-    let sql = 'INSERT INTO departments (name) VALUES (?)';
-    let params = input.name;
-
-    db.query(sql, params, function (err, result){
-        console.log(`'${input.name}' department added to the database`);
-        mainPrompt();
-    })
-}
 // WHEN I choose to add a role
 // THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
     // function addRole(){ inquirer.prompt.then((title, salary, department_id) => db.query(insert ? into role)) }
     //For department choice: prompt{ type: list, message: "Which dept?", name: "department_id", choices: [deptsArray]}
         //Where does deptsArray come from? db.query(select * department){let deptArray = response}.then inquirer? New function mayhaps??
-function addRole() {
-    console.log('Add a role');
+async function addRole() {
+
+    db.promise().query('SELECT id AS value, name FROM departments')
+    .then( ([rows,fields]) => {
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: 'What is the name of the role?'
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'What is the salary of the role?'
+            },
+            {
+                type: 'list',
+                name: 'department_id',
+                message: 'Which department does the role belong to?',
+                choices: [...rows]
+            }
+        ]).then((result) => insertRole(result));
+      })
+      .catch(console.log)
 };
+
+// const selectDepartment = new Promise((resolve, reject) => {
+//     db.query('SELECT * FROM departments', function (err, results) {
+//         if(err){
+//             reject(err);
+//         }
+//         resolve(results);
+//     })
+// });
 
 // WHEN I choose to add an employee
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
@@ -129,7 +121,60 @@ function addEmployee() {
 function updateEmployeeRole() {
     console.log('Update an employee role');
 };
+
+
+// MYSQL QUERIES
+
+
+// displays table of current departments
+function viewDepartments() {
+    db.query('SELECT * FROM departments', function (err, results) {
+        console.table('', results);
+        mainPrompt();
+    });
+};
+
+// displays table of current roles and their related departments
+function viewRoles() {
+    let sql = 'SELECT roles.id AS id, roles.title AS title, departments.name AS department, roles.salary AS salary FROM roles JOIN departments ON roles.department_id = departments.id'
+
+    db.query(sql, function (err, results) {
+        console.table('', results);
+        mainPrompt();
+    });
+};
+
+// displays table of current employees with their id, name, title, department, salary, and manager name.
+function viewEmployees() {
+    let sql = "SELECT employee.id, employee.first_name, employee.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employees employee LEFT OUTER JOIN employees manager ON employee.manager_id = manager.id JOIN roles ON employee.role_id = roles.id JOIN departments ON roles.department_id = departments.id"
+
+    db.query(sql, function (err, results) {
+        console.table('', results);
+        mainPrompt();
+    })
+};
+
+
+
+function insertDepartment(input) {
+    let sql = 'INSERT INTO departments (name) VALUES (?)';
+    let params = input.name;
+
+    db.promise().query(sql, params).then(() => {
+        console.log(`'${input.name}' department added to the database`);
+        mainPrompt();
+    });
+}
+
+function insertRole(input) {
+    let sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
+    let params = [input.title, input.salary, input.department_id]
+
+    db.promise().query(sql, params).then(() => {
+        console.log(`'${input.title}' role added to the database`);
+        mainPrompt();
+    });
+}
         
-//look into inquirer docs for choices, can have own msg and name keys?
 
 mainPrompt();
