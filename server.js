@@ -96,36 +96,45 @@ function addRole() {
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
     // function addEmployee(){ inquirer.prompt.then((first_name, last_name, role_id, manager_id) => db.query(insert ? into role)) }
         //will need roleArray and mgrArray
-function addEmployee() {
-    db.promise().query('SELECT id AS value, title AS name FROM roles')
-    //need to also query employees ids and names
-    .then( ([rows,fields]) => {
-        inquirer.prompt([
-            {
-                type: 'input',
-                name: 'first_name',
-                message: "What is the employee's first name?"
-            },
-            {
-                type: 'input',
-                name: 'last_name',
-                message: "What is the employee's last name?"
-            },
-            {
-                type: 'list',
-                name: 'role_id',
-                message: "What is the employee's role?",
-                choices: [...rows]
-            },
-            {
-                type: 'list',
-                name: 'manager_id',
-                message: "Who is the employee's manager?",
-                choices: [...rows]
-            }
-        ]).then((result) => insertRole(result));
-      })
-      .catch(console.log)
+async function addEmployee() {
+    try {
+        const rolesRows = await db.promise().query('SELECT id AS value, title AS name FROM roles');
+ 
+
+        const employeesRows = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
+
+        // console.log(rolesRows[0]);
+        // console.log(employeesRows[0]);
+    
+        const answers = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'first_name',
+                    message: "What is the employee's first name?"
+                },
+                {
+                    type: 'input',
+                    name: 'last_name',
+                    message: "What is the employee's last name?"
+                },
+                {
+                    type: 'list',
+                    name: 'role_id',
+                    message: "What is the employee's role?",
+                    choices: [...rolesRows[0]]
+                },
+                {
+                    type: 'list',
+                    name: 'manager_id',
+                    message: "Who is the employee's manager?",
+                    choices: [{value: null, name: 'none'}, ...employeesRows[0]]
+                }
+            ]);
+
+        insertEmployee(answers);
+    } catch {
+        console.log(err);
+    };
 };
 
 // WHEN I choose to update an employee role
@@ -188,6 +197,10 @@ function insertRole(input) {
         console.log(`'${input.title}' role added to the database`);
         mainPrompt();
     });
+}
+
+function insertEmployee(input) {
+    console.log(input);
 }
         
 
