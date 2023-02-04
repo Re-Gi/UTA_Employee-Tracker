@@ -77,7 +77,7 @@ async function addDepartment() {
 //
 async function addRole() {
     try {
-        const results = await db.promise().query('SELECT id AS value, name FROM departments');
+        const departments = await db.promise().query('SELECT id AS value, name FROM departments');
 
         const answers = await inquirer.prompt([
                 {
@@ -94,7 +94,7 @@ async function addRole() {
                     type: 'list',
                     name: 'department_id',
                     message: 'Which department does the role belong to?',
-                    choices: [...results[0]]
+                    choices: [...departments[0]]
                 }
             ]);
 
@@ -107,9 +107,9 @@ async function addRole() {
 // 
 async function addEmployee() {
     try {
-        const rolesRows = await db.promise().query('SELECT id AS value, title AS name FROM roles');
+        const employees = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
 
-        const employeesRows = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
+        const roles = await db.promise().query('SELECT id AS value, title AS name FROM roles');
     
         const answers = await inquirer.prompt([
                 {
@@ -126,13 +126,13 @@ async function addEmployee() {
                     type: 'list',
                     name: 'role_id',
                     message: "What is the employee's role?",
-                    choices: [...rolesRows[0]]
+                    choices: [...roles[0]]
                 },
                 {
                     type: 'list',
                     name: 'manager_id',
                     message: "Who is the employee's manager?",
-                    choices: [{value: null, name: 'none'}, ...employeesRows[0]]
+                    choices: [{value: null, name: 'none'}, ...employees[0]]
                 }
             ]);
 
@@ -146,8 +146,30 @@ async function addEmployee() {
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
     // function updateEmployeeRole(){ inquirer.prompt.then((employee, new role) => let variables).then((variables) => db.query(set )) }
         //will need employeeArray and roleArray
-function updateEmployeeRole() {
-    console.log('Update an employee role');
+async function updateEmployeeRole() {
+    try {
+        const employees = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
+
+        const roles = await db.promise().query('SELECT id AS value, title AS name FROM roles');
+
+        const answers = await inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'id',
+                        message: 'Which employee do you want to update?',
+                        choices: [...employees[0]]
+                    },
+                    {
+                        type: 'list',
+                        name: 'role_id',
+                        message: 'What is their new role?',
+                        choices: [...roles[0]]
+                    }]);
+        
+        updateDB(answers);
+    } catch (err) {
+        console.log(err);
+    };
 };
 
 
@@ -234,5 +256,18 @@ async function insertEmployee(input) {
     };
 };
 
+async function updateDB(input) {
+    console.log(input);
+    let sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
+    let params = [input.role_id, input.id];
+    try {
+        await db.promise().query(sql, params);
+
+        console.log('Employee updated');
+        mainPrompt();
+    } catch (err) {
+        console.log(err);
+    };
+}
 
 mainPrompt();
