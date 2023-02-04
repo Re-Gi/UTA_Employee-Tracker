@@ -253,7 +253,6 @@ async function insertEmployee(input) {
 
 // updates a current employee' role using user input
 async function updateDB(input) {
-    console.log(input);
     let sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
     let params = [input.role_id, input.id];
     try {
