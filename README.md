@@ -1,11 +1,16 @@
-# Employee Tracker
-  ![license](https://img.shields.io/badge/license-MIT-brightgreen)
+# Employee Tracker 
+![Screenshot (63)](https://user-images.githubusercontent.com/119711335/216746567-c48a40c9-9366-4dca-b78d-cd6cd89ea3b3.png)
+![license](https://img.shields.io/badge/license-MIT-brightgreen)
+
   ## Description
-  This is a command-line application that allows for a company to manage their employee database.
+  This is a command-line application that allows for a company to manage their employee database. This is challenge 12 of the UTA Full-Stack Web Developement Bootcamp, it's purpose being to further my knowledge of databases and MySQL.
+  
+  Employee Tracker allows the user to view tables of department, role, and employee data, as well as add new data and update employee roles all from the terminal.
   
   ## Table of Contents
   - [Installation](#installation)
   - [Usage](#usage) 
+  - [Demo](#demo)
   - [License](#license)
   - [Questions](#questions)
   
@@ -16,10 +21,16 @@
   Once the dependencies are installed, the user must enter the command `node server.js` to start the application. The first question asked is a default navigational list titled 'What would you like to do?', from here there are multiple actions that the user can take.
   
   Choosing 'View all departments', 'View all roles', or 'View all Employees' will display a table of related data in the console for viewing.
+  
+  ![Screenshot (62)](https://user-images.githubusercontent.com/119711335/216746673-1c135955-474c-4ffc-b8c0-18c857a26c8c.png)
 
-  Choosing 'Add a department', 'Add a role', 'Add an employee', or 'Update an employee role' will allow the user to actually change the data stored in the database with information given by the user in subsequent prompts.
+
+  Choosing 'Add a department', 'Add a role', 'Add an employee', or 'Update an employee role' will allow the user to actually change the data stored in the database with information given by the user in subsequent prompts. Please watch the walkthrough video in the [Demo](#demo) section to see these actions played out.
 
   To exit the application, the user should select 'Quit' from the default navigational list.
+  
+  ## Demo
+  [EmployeeTracker-demo.webm](https://user-images.githubusercontent.com/119711335/216746355-acf5e60d-f26f-439a-a601-6c70e379a7d8.webm)
   
   ## License 
   MIT License
