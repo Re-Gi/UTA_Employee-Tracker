@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 require('dotenv').config();
 
-
 //mysql database connection
 const db = mysql.createConnection(
     {
@@ -15,14 +14,15 @@ const db = mysql.createConnection(
     console.log('Connected to the company_db database.')
 );
 
+
 // initial navigation prompt, occurs at the start of the app and after the completion of each action
 async function mainPrompt() {
     try {
         const answers = await inquirer.prompt([{
                     type: 'list',
                     name: 'next',
-                    message: 'What would you like to do?',
-                    choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
+                    message: ('What would you like to do?'),
+                    choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Quit']
                 }]);
 
         switch (answers.next) {
@@ -47,6 +47,7 @@ async function mainPrompt() {
             case 'Update an employee role':
                 updateEmployeeRole();
                 break;
+            default: process.exit();
         };
     } catch (err) {
         console.log(err);
@@ -54,10 +55,8 @@ async function mainPrompt() {
 };
 
 
-// PROMPT CONTINUATIONS AND REDIRECTIONS
 
-
-// 
+// prompts user for information needed to add another department, redirects to insertDepartment() with responses
 async function addDepartment() {
     try {
         const answers = await inquirer.prompt([
@@ -74,9 +73,10 @@ async function addDepartment() {
     };
 };
 
-//
+// prompts user for information needed to add another role, redirects to insertRole() with  responses
 async function addRole() {
     try {
+        //current departments information is gathered from the database to use in our inquirer list choices. What is set to the 'name' key will be displayed in the list, but the name they select will return to us as whatever the selection's 'value' key is.
         const departments = await db.promise().query('SELECT id AS value, name FROM departments');
 
         const answers = await inquirer.prompt([
@@ -104,7 +104,7 @@ async function addRole() {
     };
 };
 
-// 
+// prompts user for information needed to add another employee, redirects to insertEmployee() with  responses
 async function addEmployee() {
     try {
         const employees = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
@@ -142,10 +142,7 @@ async function addEmployee() {
     };
 };
 
-// WHEN I choose to update an employee role
-// THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
-    // function updateEmployeeRole(){ inquirer.prompt.then((employee, new role) => let variables).then((variables) => db.query(set )) }
-        //will need employeeArray and roleArray
+// prompts user for information needed to update an employee's role, redirects to updateDB() with  responses
 async function updateEmployeeRole() {
     try {
         const employees = await db.promise().query("SELECT id AS value, CONCAT(first_name,' ', last_name) AS name FROM employees");
@@ -172,8 +169,6 @@ async function updateEmployeeRole() {
     };
 };
 
-
-// MYSQL QUERIES
 
 
 // displays table of current departments
@@ -214,7 +209,7 @@ async function viewEmployees() {
     };
 };
 
-//
+// inserts a new department into the 'departments' table of the database using user input
 async function insertDepartment(input) {
     let sql = 'INSERT INTO departments (name) VALUES (?)';
     let params = input.name;
@@ -228,7 +223,7 @@ async function insertDepartment(input) {
     };
 }
 
-//
+// inserts a new role into the 'roles' table of the database using user input
 async function insertRole(input) {
     let sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
     let params = [input.title, input.salary, input.department_id];
@@ -242,7 +237,7 @@ async function insertRole(input) {
     };
 };
 
-//
+// inserts a new employee into the 'employees' table of the database using user input
 async function insertEmployee(input) {
     let sql = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
     let params = [input.first_name, input.last_name, input.role_id, input.manager_id];
@@ -256,6 +251,7 @@ async function insertEmployee(input) {
     };
 };
 
+// updates a current employee' role using user input
 async function updateDB(input) {
     console.log(input);
     let sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
